@@ -35,15 +35,6 @@ jobs:
                   echo y | sfdx plugins:install sfdx-git-delta
                   sfdx plugins 
 
-            # Install java as it is required for the next step
-      - name: 'Installing java'
-        run: |
-                sudo apt-get update
-                sudo apt install default-jdk
-
-            # Install SFDX scanner
-      - name: 'Installing SFDX scanner'
-        run: sfdx plugins:install @salesforce/sfdx-scanner
 
       - name: 'Populate auth file with SFDX_URL secret of the integration and staging orgs'
         shell: bash
@@ -64,11 +55,5 @@ jobs:
                   sfdx scanner:run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif'  
                   cd ..
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: changed-sources/apexScanResults.sarif
-
-      - name: 'Check-only deploy delta changes - run specified tests'
-        if: ${{ env.APEX_TESTS != 'all' }}
+      - name: 'Deploy delta changes'
         run: sfdx force:source:deploy -p "changed-sources/force-app"
