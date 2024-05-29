@@ -60,7 +60,7 @@ jobs:
       - name: 'Create delta packages for new, modified or deleted metadata'
         run: |
           mkdir changed-sources
-          sfdx sgd:source:delta --to "${{ steps.get_main_commit.outputs.commit_sha }}" --from "${{ github.event.inputs.branch }}" --output changed-sources/ --generate-delta --source force-app/ 
+          sfdx sgd:source:delta --to "${{ github.event.inputs.branch }}" --from "${{ steps.get_main_commit.outputs.commit_sha }}" --output changed-sources/ --generate-delta --source force-app/ 
 
       - name: 'Deploy delta changes'
         run: sfdx force:source:deploy -p "changed-sources/force-app"
