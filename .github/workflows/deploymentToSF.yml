@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to deploy from'
+        description: 'Branch to deploy from ("story/MT-0001")'
         required: true
         default: 'main'
 
@@ -32,9 +32,14 @@ jobs:
         run: |
           echo ${{ secrets.SALESFORCE_CLI_URL_QA_SANDBOX}} > ./SALESFORCE_CLI_URL_QA_SANDBOX.txt
 
+      - name: 'Create delta packages for new, modified or deleted metadata'
+        run: | 
+          mkdir changed-sources
+          sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/
+
       - name: 'Authenticate to QA Org'
         run: sfdx auth:sfdxurl:store -f ./SALESFORCE_CLI_URL_QA_SANDBOX.txt -s -a QA
 
       - name: 'Deploy the entire branch to QA org'
-        run: sfdx force:source:deploy -p force-app/main/default/classes
+        run: sfdx force:source:deploy -p force-app
         
