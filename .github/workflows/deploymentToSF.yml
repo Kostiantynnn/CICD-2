@@ -1,4 +1,4 @@
-name: Salesforce Deployment - 2
+name: Salesforce Deployment
 
 on:
   workflow_dispatch:
