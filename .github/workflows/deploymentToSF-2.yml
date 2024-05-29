@@ -19,6 +19,9 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
+
+      - name: 'Fetch main branch'
+        run: git fetch origin main
 #Test
       - name: 'Determine last merge commit from branch to main'
         id: last_merge_commit
@@ -52,7 +55,7 @@ jobs:
       - name: 'Create delta packages for new, modified or deleted metadata'
         run: |
           mkdir changed-sources
-          sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/ 
+          sfdx sgd:source:delta --to "main" --from "${{ github.event.inputs.branch }}" --output changed-sources/ --generate-delta --source force-app/ 
 
       - name: 'Deploy delta changes'
         run: sfdx force:source:deploy -p "changed-sources/force-app"
