@@ -45,8 +45,6 @@ jobs:
       - name: 'Determine commit range'
         id: commit_range
         run: |
-          echo "BASE_COMMIT=${BASE_COMMIT}" >> $GITHUB_ENV
-          echo "LAST_MERGE_COMMIT=${LAST_MERGE_COMMIT}" >> $GITHUB_ENV
           LAST_MERGE_COMMIT=$(git log --merges --pretty=format:"%H" -n 1)
           BASE_COMMIT=$(git log --pretty=format:"%H" -n 1 ${LAST_MERGE_COMMIT}^2)
           echo "BASE_COMMIT=${BASE_COMMIT}" >> $GITHUB_ENV
@@ -54,6 +52,8 @@ jobs:
           
       - name: 'Create delta packages for new, modified or deleted metadata'
         run: |
+          echo "BASE_COMMIT=${{ env.BASE_COMMIT }}"
+          echo "LAST_MERGE_COMMIT=${{ env.LAST_MERGE_COMMIT }}"
           mkdir changed-sources
           sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/ 
 
