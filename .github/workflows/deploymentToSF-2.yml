@@ -19,15 +19,15 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
-
+# Test
       - name: 'Fetch main branch'
         run: git fetch origin main
-
+# Test
       - name: 'Get commit SHA of main branch'
         id: get_main_commit
         run: echo "::set-output name=commit_sha::$(git rev-parse origin/main)"
 
-#Test
+# Test
       - name: 'Determine last merge commit from branch to main'
         id: last_merge_commit
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: 'Create delta packages for new, modified or deleted metadata'
         run: |
           mkdir changed-sources
-          sfdx sgd:source:delta --to "${{ steps.get_main_commit.outputs.commit_sha }}" --from "${{ github.event.inputs.branch }}" --output changed-sources/ --generate-delta --source force-app/ 
+          sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/ 
 
       - name: 'Deploy delta changes'
         run: sfdx force:source:deploy -p "changed-sources/force-app"
