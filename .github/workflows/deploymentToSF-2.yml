@@ -19,21 +19,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
-# Test
-      - name: 'Fetch main branch'
-        run: git fetch origin main
-# Test
-      - name: 'Get commit SHA of main branch'
-        id: get_main_commit
-        run: echo "::set-output name=commit_sha::$(git rev-parse origin/main)"
-
-# Test
-      - name: 'Determine last merge commit from branch to main'
-        id: last_merge_commit
-        run: |
-          git fetch --depth=1 origin main
-          LAST_MERGE_COMMIT=$(git log --merges --first-parent --pretty=format:"%H" origin/main..origin/${{ github.event.inputs.branch }} | head -n 1)
-          echo "LAST_MERGE_COMMIT=${LAST_MERGE_COMMIT}" >> $GITHUB_ENV
 
       - name: 'Install Salesforce CLI'
         run: |
