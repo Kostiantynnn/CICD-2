@@ -1,4 +1,4 @@
-name: Salesforce Deployment - 2
+name: Salesforce Deployment
 
 on:
   workflow_dispatch:
@@ -20,6 +20,11 @@ jobs:
           tar xJf sfdx-linux-x64.tar.xz -C ~/sfdx --strip-components 1
           echo "$HOME/sfdx/bin" >> $GITHUB_PATH
           ~/sfdx/bin/sfdx version
+          
+      - name: 'Installing sfdx git delta'
+        run: | 
+          echo y | sfdx plugins:install sfdx-git-delta
+          sfdx plugins 
     
       - name: 'Checkout source code'
         uses: actions/checkout@v4
@@ -42,4 +47,5 @@ jobs:
 
       - name: 'Deploy the entire branch to QA org'
         run: sfdx force:source:deploy -p force-app
+       # run: sfdx force:mdapi:deploy -d "changed-sources/destructiveChanges" --checkonly --ignorewarnings 
         
