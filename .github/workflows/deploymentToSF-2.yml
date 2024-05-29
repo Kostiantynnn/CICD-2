@@ -1,0 +1,49 @@
+name: Salesforce Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environments:
+        description: 'Select environments to deploy (comma-separated, e.g., "qa_sandbox,migration_sandbox")'
+        required: true
+        default: 'qa_sandbox,migration_sandbox'
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        default: 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.branch }}
+
+    - name: Set up environment variables
+      run: |
+        IFS=',' read -r -a environments <<< "${{ github.event.inputs.environments }}"
+        for env in "${environments[@]}"; do
+          case $env in
+            "qa_sandbox")
+              echo "SALESFORCE_CLI_URL=${{ secrets.SALESFORCE_CLI_URL_QA_SANDBOX }}" >> $GITHUB_ENV
+              ;;
+            "migration_sandbox")
+              echo "SALESFORCE_CLI_URL=${{ secrets.SALESFORCE_CLI_URL_MIGRATION_SANDBOX }}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unknown environment: $env"
+              exit 1
+              ;;
+          esac
+        done
+
+    - name: Authenticate and deploy to Salesforce
+      run: |
+        for env in "${environments[@]}"; do
+          echo "Authenticating and deploying to $env"
+          echo $SALESFORCE_CLI_URL | sfdx auth:sfdxurl:store -f -
+          sfdx force:source:deploy -u $env -p ./force-app/main
+        done
