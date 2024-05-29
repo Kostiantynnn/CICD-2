@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to deploy from ("story/MT-0001")'
+        description: 'Branch to deploy from ("sprints/sprint0001")'
         required: true
-        default: 'main'
+        default: 'sprints/sprint0001'
 
 jobs:
   deploy:
