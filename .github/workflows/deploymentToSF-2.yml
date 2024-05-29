@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to deploy from ("sprints/sprint0001")'
+        description: 'Branch name to deploy its last commit to QA'
         required: true
         default: 'sprints/sprint0001'
 
