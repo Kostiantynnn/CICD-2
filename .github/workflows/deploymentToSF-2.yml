@@ -21,8 +21,8 @@ jobs:
           fetch-depth: 0
 
             # Install Salesforce CLI
-            - name: 'Install Salesforce CLI'
-              run: |
+      - name: 'Install Salesforce CLI'
+        run: |
                   wget https://developer.salesforce.com/media/salesforce-cli/sfdx/channels/stable/sfdx-linux-x64.tar.xz
                   mkdir ~/sfdx
                   tar xJf sfdx-linux-x64.tar.xz -C ~/sfdx --strip-components 1
@@ -30,20 +30,20 @@ jobs:
                   ~/sfdx/bin/sfdx version
 
             # Install the SFDX-Git-Delta plugin 
-            - name: 'Installing sfdx git delta'
-              run: | 
+      - name: 'Installing sfdx git delta'
+        run: | 
                   echo y | sfdx plugins:install sfdx-git-delta
                   sfdx plugins 
 
             # Install java as it is required for the next step
-            - name: 'Installing java'
-              run: |
+      - name: 'Installing java'
+        run: |
                 sudo apt-get update
                 sudo apt install default-jdk
 
             # Install SFDX scanner
-            - name: 'Installing SFDX scanner'
-              run: sfdx plugins:install @salesforce/sfdx-scanner
+      - name: 'Installing SFDX scanner'
+        run: sfdx plugins:install @salesforce/sfdx-scanner
 
       - name: 'Populate auth file with SFDX_URL secret of the integration and staging orgs'
         shell: bash
@@ -54,21 +54,21 @@ jobs:
         run: sfdx auth:sfdxurl:store -f ./SALESFORCE_CLI_URL_QA_SANDBOX.txt -s -a QA
 
       - name: 'Create delta packages for new, modified or deleted metadata'
-              run: | 
+        run: | 
                   mkdir changed-sources
                   sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/ 
 
-            - name: 'Scan code'
-              run: |
+      - name: 'Scan code'
+        run: |
                   cd changed-sources
                   sfdx scanner:run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif'  
                   cd ..
 
-            - name: Upload SARIF file
-              uses: github/codeql-action/upload-sarif@v1
-              with:
-                sarif_file: changed-sources/apexScanResults.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: changed-sources/apexScanResults.sarif
 
-            - name: 'Check-only deploy delta changes - run specified tests'
-              if: ${{ env.APEX_TESTS != 'all' }}
-              run: sfdx force:source:deploy -p "changed-sources/force-app"
+      - name: 'Check-only deploy delta changes - run specified tests'
+        if: ${{ env.APEX_TESTS != 'all' }}
+        run: sfdx force:source:deploy -p "changed-sources/force-app"
